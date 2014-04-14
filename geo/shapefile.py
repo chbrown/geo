@@ -7,8 +7,6 @@ version: 1.2.0
 Compatible with Python versions 2.4-3.x
 """
 
-__version__ = "1.2.0"
-
 from struct import pack, unpack, calcsize, error
 import os
 import sys
@@ -1149,18 +1147,3 @@ class Editor(Writer):
         if len(fieldName) > 11: fieldName = fieldName[:11]
         fieldName = fieldName.upper()
         fieldName.replace(' ', '_')
-
-# Begin Testing
-def test():
-    import doctest
-    doctest.NORMALIZE_WHITESPACE = 1
-    doctest.testfile("README.txt", verbose=1)
-
-if __name__ == "__main__":
-    """
-    Doctests are contained in the file 'README.txt'. This library was originally developed
-    using Python 2.3. Python 2.4 and above have some excellent improvements in the built-in
-    testing libraries but for now unit testing is done using what's available in
-    2.3.
-    """
-    test()
