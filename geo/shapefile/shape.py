@@ -5,7 +5,7 @@ from geo.shapefile.types import POLYLINE, POLYLINEM, POLYLINEZ
 from geo.shapefile.types import POLYGON, POLYGONM, POLYGONZ
 
 
-class Shape:
+class Shape(object):
     def __init__(self, shapeType=None):
         """Stores the geometry of the different shape types
         specified in the Shapefile spec. Shape types are
@@ -22,21 +22,12 @@ class Shape:
     @property
     def __geo_interface__(self):
         if self.shapeType in [POINT, POINTM, POINTZ]:
-            return {
-            'type': 'Point',
-            'coordinates': tuple(self.points[0])
-            }
+            return dict(type='Point', coordinates=tuple(self.points[0]))
         elif self.shapeType in [MULTIPOINT, MULTIPOINTM, MULTIPOINTZ]:
-            return {
-            'type': 'MultiPoint',
-            'coordinates': tuple([tuple(p) for p in self.points])
-            }
+            return dict(type='MultiPoint', coordinates=tuple([tuple(p) for p in self.points]))
         elif self.shapeType in [POLYLINE, POLYLINEM, POLYLINEZ]:
             if len(self.parts) == 1:
-                return {
-                'type': 'LineString',
-                'coordinates': tuple([tuple(p) for p in self.points])
-                }
+                return dict(type='LineString', coordinates=tuple([tuple(p) for p in self.points]))
             else:
                 ps = None
                 coordinates = []
@@ -49,16 +40,10 @@ class Shape:
                         ps = part
                 else:
                     coordinates.append(tuple([tuple(p) for p in self.points[part:]]))
-                return {
-                'type': 'MultiLineString',
-                'coordinates': tuple(coordinates)
-                }
+                return dict(type='MultiLineString', coordinates=tuple(coordinates))
         elif self.shapeType in [POLYGON, POLYGONM, POLYGONZ]:
             if len(self.parts) == 1:
-                return {
-                'type': 'Polygon',
-                'coordinates': (tuple([tuple(p) for p in self.points]),)
-                }
+                return dict(type='Polygon', coordinates=(tuple([tuple(p) for p in self.points]),))
             else:
                 ps = None
                 coordinates = []
@@ -81,12 +66,6 @@ class Shape:
                         poly.append(coord)
                 polys.append(poly)
                 if len(polys) == 1:
-                    return {
-                    'type': 'Polygon',
-                    'coordinates': tuple(polys[0])
-                    }
+                    return dict(type='Polygon', coordinates=tuple(polys[0]))
                 elif len(polys) > 1:
-                    return {
-                    'type': 'MultiPolygon',
-                    'coordinates': polys
-                    }
+                    return dict(type='MultiPolygon', coordinates=polys)
