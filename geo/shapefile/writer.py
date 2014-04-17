@@ -1,15 +1,15 @@
 from struct import pack, error
+import os
 import time
 import tempfile
 
 from geo.shapefile import ShapefileException
-from geo.shapefile.six import u, b, is_string
-from geo.shapefile.types import *
+from geo.shapefile.six import b
+from geo.shapefile.types import NULL, POLYLINE, POLYGON
 from geo.shapefile.shape import Shape
 
 
 class Writer(object):
-
     """Provides write support for ESRI Shapefiles."""
 
     def __init__(self, shapeType=None):

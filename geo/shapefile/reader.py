@@ -106,6 +106,12 @@ class Reader(object):
                 i = range(self.numRecords)[i]
         return i
 
+    def assertFile(self, attr):
+        # attr should be 'shp', 'dbf', or 'shx'
+        if not getattr(self, attr, None):
+            raise ShapefileException("Shapefile Reader requires a shapefile or file-like object."
+                "(no %s file found)" % attr)
+
     def __shpHeader(self):
         """Reads the header information from a .shp or .shx file."""
         if not self.shp:
@@ -236,21 +242,17 @@ class Reader(object):
     def __dbfHeaderLength(self):
         """Retrieves the header length of a dbf file header."""
         if not self.__dbfHdrLength:
-            if not self.dbf:
-                raise ShapefileException("Shapefile Reader requires a shapefile or file-like object. (no dbf file found)")
-            dbf = self.dbf
-            (self.numRecords, self.__dbfHdrLength) = unpack("<xxxxLH22x", dbf.read(32))
+            self.assertFile('dbf')
+            self.numRecords, self.__dbfHdrLength = unpack("<xxxxLH22x", self.dbf.read(32))
         return self.__dbfHdrLength
 
     def __dbfHeader(self):
         """Reads a dbf header. Xbase-related code borrows heavily from ActiveState Python Cookbook Recipe 362715 by Raymond Hettinger"""
-        if not self.dbf:
-            raise ShapefileException("Shapefile Reader requires a shapefile or file-like object. (no dbf file found)")
-        dbf = self.dbf
+        self.assertFile('dbf')
         headerLength = self.__dbfHeaderLength()
         numFields = (headerLength - 33) // 32
         for field in range(numFields):
-            fieldDesc = list(unpack("<11sc4xBB14x", dbf.read(32)))
+            fieldDesc = list(unpack("<11sc4xBB14x", self.dbf.read(32)))
             name = 0
             idx = 0
             if b("\x00") in fieldDesc[name]:
@@ -262,7 +264,7 @@ class Reader(object):
             fieldDesc[name] = fieldDesc[name].lstrip()
             fieldDesc[1] = u(fieldDesc[1])
             self.fields.append(fieldDesc)
-        terminator = dbf.read(1)
+        terminator = self.dbf.read(1)
         assert terminator == b("\r")
         self.fields.insert(0, ('DeletionFlag', 'C', 1, 0))
 
@@ -335,3 +337,7 @@ class Reader(object):
             r = self.__record()
             if r:
                 yield r
+
+    @property
+    def field_names(self):
+        return [field_name for field_name, _, _, _ in self.fields[1:]]

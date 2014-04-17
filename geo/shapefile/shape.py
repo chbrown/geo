@@ -43,10 +43,12 @@ class Shape(object):
                 return dict(type='MultiLineString', coordinates=tuple(coordinates))
         elif self.shapeType in [POLYGON, POLYGONM, POLYGONZ]:
             if len(self.parts) == 1:
-                return dict(type='Polygon', coordinates=(tuple([tuple(p) for p in self.points]),))
+                linear_rings = [[tuple(p) for p in self.points]]
+                return dict(type='Polygon', coordinates=linear_rings)
             else:
                 ps = None
                 coordinates = []
+                # TODO: this double-nesting needs fixing as in the simple case
                 for part in self.parts:
                     if ps == None:
                         ps = part
@@ -66,6 +68,6 @@ class Shape(object):
                         poly.append(coord)
                 polys.append(poly)
                 if len(polys) == 1:
-                    return dict(type='Polygon', coordinates=tuple(polys[0]))
+                    return dict(type='Polygon', coordinates=polys[0])
                 elif len(polys) > 1:
                     return dict(type='MultiPolygon', coordinates=polys)
