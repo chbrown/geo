@@ -58,7 +58,7 @@ class BoundingBox(object):
 
 class Feature(object):
     '''
-    Feature(geometry, properties, bbox=None)
+    Feature(geometry, properties, id=None, bbox=None)
 
     A Feature has a geometry that is usually a Polygon or MultiPolygon
 
